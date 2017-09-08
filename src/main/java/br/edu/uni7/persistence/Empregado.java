@@ -1,13 +1,25 @@
 package br.edu.uni7.persistence;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -23,43 +35,82 @@ public class Empregado {
 
 	@Column(name = "NM_NAME")
 	private String nome;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "FK_DEP")
+	private Departamento departamento;
 	
-	@Column(name = "NM_EMAIL")
+	@Column(name="NM_EMAIL")
 	private String email;
 	
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public Date getDataNascimento() {
-		return dataNascimento;
-	}
-
-	public void setDataNascimento(Date dataNascimento) {
-		this.dataNascimento = dataNascimento;
-	}
-
-	public BigDecimal getSalario() {
-		return salario;
-	}
-
-	public void setSalario(BigDecimal salario) {
-		this.salario = salario;
-	}
-
 	@Temporal(TemporalType.DATE)
-	@Column(name="DT_NASCIMENTO")
 	private Date dataNascimento;
 	
 	@Column(name="NU_SALARIO")
 	private BigDecimal salario;
-	
+
+	@Embedded
+	@AttributeOverrides(value = { 
+			@AttributeOverride(name = "cep", column = @Column(name = "NU_COD_POSTAL"))})
+	private Endereco endereco;
+
+	public Endereco getEndereco() {
+		return endereco;
+	}
+
+	public void setEndereco(Endereco endereco) {
+		this.endereco = endereco;
+	}
+
+	@OneToOne(cascade = { CascadeType.REMOVE, CascadeType.PERSIST },
+			fetch = FetchType.LAZY)
+	@JoinColumn(name = "FK_DOC_ID")
+	private Documento documento;
+
+	public Documento getDocumento() {
+		return documento;
+	}
+
+	public void setDocumento(Documento documento) {
+		this.documento = documento;
+	}
+
+	@ManyToMany
+	@JoinTable(name = "TBL_EMP_PRJS", 
+	joinColumns = @JoinColumn(name = "FK_EMP") , 
+	inverseJoinColumns = @JoinColumn(name = "FK_PROJ") )
+	private List<Projeto> projetos = new ArrayList<Projeto>();
+
+	public List<Projeto> getProjetos() {
+		return projetos;
+	}
+
+	public void setProjetos(List<Projeto> projetos) {
+		this.projetos = projetos;
+	}
+
+	public Departamento getDepartamento() {
+		return departamento;
+	}
+
+	public void setDepartamento(Departamento departamento) {
+		this.departamento = departamento;
+	}
+
 	public String getNome() {
 		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	@Override
@@ -87,17 +138,28 @@ public class Empregado {
 		return true;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public String getEmail() {
+		return email;
 	}
 
-	public Long getId() {
-		return id;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public Date getDataNascimento() {
+		return dataNascimento;
 	}
 
-	
+	public void setDataNascimento(Date dataNascimento) {
+		this.dataNascimento = dataNascimento;
+	}
+
+	public BigDecimal getSalario() {
+		return salario;
+	}
+
+	public void setSalario(BigDecimal salario) {
+		this.salario = salario;
+	}
+
 }
