@@ -50,7 +50,8 @@ public class Empregado {
 	private BigDecimal salario;
 
 	@Embedded
-	@AttributeOverrides(value = { @AttributeOverride(name = "cep", column = @Column(name = "NU_COD_POSTAL") ) })
+	@AttributeOverrides(value = { 
+			@AttributeOverride(name = "cep", column = @Column(name = "NU_COD_POSTAL"))})
 	private Endereco endereco;
 
 	public Endereco getEndereco() {
@@ -61,7 +62,8 @@ public class Empregado {
 		this.endereco = endereco;
 	}
 
-	@OneToOne(cascade = { CascadeType.REMOVE, CascadeType.PERSIST }, fetch = FetchType.LAZY)
+	@OneToOne(cascade = { CascadeType.REMOVE, CascadeType.PERSIST },
+			fetch = FetchType.LAZY)
 	@JoinColumn(name = "FK_DOC_ID")
 	private Documento documento;
 
@@ -74,7 +76,9 @@ public class Empregado {
 	}
 
 	@ManyToMany
-	@JoinTable(name = "TBL_EMP_PRJS", joinColumns = @JoinColumn(name = "FK_EMP") , inverseJoinColumns = @JoinColumn(name = "FK_PROJ") )
+	@JoinTable(name = "TBL_EMP_PRJS", 
+	joinColumns = @JoinColumn(name = "FK_EMP") , 
+	inverseJoinColumns = @JoinColumn(name = "FK_PROJ") )
 	private List<Projeto> projetos = new ArrayList<Projeto>();
 
 	public List<Projeto> getProjetos() {

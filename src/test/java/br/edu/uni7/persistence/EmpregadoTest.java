@@ -40,10 +40,14 @@ public class EmpregadoTest {
 				
 		empregado.setNome("Novo Nome");
 		entityManager.getTransaction().begin();
-		Empregado empregadoDb = entityManager.merge(empregado);
-		entityManager.getTransaction().commit();		
+		Empregado empregadoGerenciado = entityManager.merge(empregado);
+		entityManager.getTransaction().commit();
 		
-		Assert.assertEquals("Novo Nome", empregadoDb.getNome());		
+		//Remove todos os objetos gerenciados do EM. 
+		//Usado aqui apenas para controlar a execução do teste.
+		entityManager.clear();
+		
+		Assert.assertEquals("Novo Nome", entityManager.find(Empregado.class, empregadoGerenciado.getId()).getNome());		
 	}
 	
 	@Test
@@ -64,7 +68,7 @@ public class EmpregadoTest {
 		Empregado empregado = criarEmpregado();
 		entityManager.persist(empregado);
 		
-		String nome = empregado.getNome();
+		String nomeAntesDaMudanca = empregado.getNome();
 		
 		entityManager.detach(empregado);
 		empregado.setNome("Novo nome");
@@ -72,12 +76,12 @@ public class EmpregadoTest {
 		entityManager.getTransaction().commit();	
 		entityManager.clear();
 		
-		Empregado empregado2 = entityManager.find(Empregado.class, empregado.getId());
-		Assert.assertEquals(nome, empregado2.getNome());		
+		Empregado empregadoDb = entityManager.find(Empregado.class, empregado.getId());
+		Assert.assertEquals(nomeAntesDaMudanca, empregadoDb.getNome());		
 	}
 	
 	@Test
-	public void testAssociarDep() {
+	public void testAssociarDepartamento() {
 		entityManager.getTransaction().begin();
 		
 		Empregado emp = criarEmpregado();		
@@ -85,8 +89,7 @@ public class EmpregadoTest {
 		entityManager.persist(dep);
 		
 		emp.setDepartamento(dep);		
-		entityManager.persist(emp)
-		;
+		entityManager.persist(emp);
 		entityManager.getTransaction().commit();
 		entityManager.clear();
 		
@@ -158,8 +161,10 @@ public class EmpregadoTest {
 	@Test
 	public void testAdicionarDoc(){
 		Empregado emp = criarEmpregado();		
+		
 		Documento doc = new Documento();
-		doc.setNumero(898989898L);		
+		doc.setNumero(898989898L);
+		
 		emp.setDocumento(doc);
 		
 		entityManager.getTransaction().begin();
@@ -170,6 +175,25 @@ public class EmpregadoTest {
 		Empregado empregado = entityManager.find(Empregado.class, emp.getId());
 		Assert.assertNotNull(empregado);
 		Assert.assertNotNull(empregado.getDocumento().getId());		
+		
+	}
+	
+	@Test
+	public void testRemoveDoc(){
+		Empregado emp = criarEmpregado();		
+		Documento doc = new Documento();
+		doc.setNumero(898989898L);		
+		emp.setDocumento(doc);
+		
+		entityManager.getTransaction().begin();
+		entityManager.persist(emp);
+		
+		entityManager.remove(emp);
+		
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+
+		Assert.assertNull( entityManager.find(Documento.class, emp.getDocumento().getId()));		
 		
 	}
 
