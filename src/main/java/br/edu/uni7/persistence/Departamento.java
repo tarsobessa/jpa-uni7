@@ -18,7 +18,7 @@ public class Departamento {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="PK_DEP_ID")
+	@Column(name="PK_DEP")
 	private Long id;
 	
 	@Embedded

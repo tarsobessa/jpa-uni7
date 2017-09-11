@@ -46,7 +46,7 @@ public class Empregado {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "PK_EMP_ID")
+	@Column(name = "PK_EMP")
 	private Long id;
 
 	@Column(name = "NM_NAME")

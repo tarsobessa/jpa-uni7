@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -17,11 +18,14 @@ public class Projeto {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="PK_PROJ_ID")
+	@Column(name="PK_PROJ")
 	private Long id;
 	
 	@Column(name="NM_NOME")
 	private String nome;
+	
+	@OneToMany(mappedBy="projeto")
+	private List<Tarefa> tarefas;
 	
 	@ManyToMany(mappedBy="projetos")
 	private List<Empregado> empregados = new ArrayList<Empregado>();
@@ -73,5 +77,13 @@ public class Projeto {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+
+	public List<Tarefa> getTarefas() {
+		return tarefas;
+	}
+
+	public void setTarefas(List<Tarefa> tarefas) {
+		this.tarefas = tarefas;
 	}
 }

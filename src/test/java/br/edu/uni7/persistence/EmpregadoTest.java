@@ -1,6 +1,7 @@
 package br.edu.uni7.persistence;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -256,8 +257,49 @@ public class EmpregadoTest {
 		Assert.assertTrue(list.size()>0);
 	}
 
-
-	
+	@Test
+	public void testCriarTarefas(){
+		entityManager.getTransaction().begin();
+		
+		Empregado emp = Utils.criarEmpregado();		
+		
+		Projeto proj = new Projeto();
+		proj.setNome("Cassiny");
+		entityManager.persist(proj);
+		
+		emp.getProjetos().add(proj);
+		entityManager.persist(emp);
+		
+		TarefaUnica tarefaUnica = new TarefaUnica();
+		tarefaUnica.setNome("Importar Dados do DB");
+		tarefaUnica.setDataCriacao(new Date());
+		tarefaUnica.setProjeto(proj);
+		tarefaUnica.setEmpregado(emp);
+		
+		entityManager.persist(tarefaUnica);
+		
+		TarefaRecorrente tarefaRecorrente = new TarefaRecorrente();
+		tarefaRecorrente.setNome("Verificar E-mails");
+		tarefaRecorrente.setDataCriacao(new Date());
+		tarefaRecorrente.setProjeto(proj);
+		tarefaRecorrente.setEmpregado(emp);
+		tarefaRecorrente.setPeriodicidade(Peridicidade.DIARIO);
+		
+		entityManager.persist(tarefaRecorrente);
+		
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+		
+		Projeto projetoDb = entityManager.find(Projeto.class, proj.getId());
+		List<Tarefa> tarefas = projetoDb.getTarefas();
+		for (int i = 0; i < tarefas.size(); i++) {
+			Tarefa tarefa = tarefas.get(i);			
+			System.out.println(String.format("Tarefa %d -> %s", i+1, tarefa.getNome()));
+		}
+		
+		Assert.assertTrue(projetoDb.getTarefas().size()==2);		
+		
+	}
 	
 	
 	

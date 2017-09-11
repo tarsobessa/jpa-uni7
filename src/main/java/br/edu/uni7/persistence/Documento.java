@@ -13,7 +13,7 @@ public class Documento {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="PK_DOC_ID")
+	@Column(name="PK_DOC")
 	private Long id;
 	
 	@Column(name="NU_NUMERO")
