@@ -1,6 +1,7 @@
 package br.edu.uni7.persistence;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -8,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -27,6 +29,16 @@ public class Departamento {
 	
 	@Column(name="NM_ORCAMENTO")
 	BigDecimal orcamento;
+	
+	@OneToMany(mappedBy="departamento")
+	private List<Empregado> empregados;
+	
+	public List<Empregado> getEmpregados() {
+		return empregados;
+	}
+	public void setEmpregados(List<Empregado> empregados) {
+		this.empregados = empregados;
+	}
 	
 	public Endereco getEndereco() {
 		return endereco;

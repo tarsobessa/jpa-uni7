@@ -1,6 +1,7 @@
 package br.edu.uni7.persistence;
 
-import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -24,7 +25,7 @@ public class EmpregadoTest {
 	@Test
 	public void testPersist(){
 		entityManager.getTransaction().begin();		
-		Empregado empregado = criarEmpregado();
+		Empregado empregado = Utils.criarEmpregado();
 		entityManager.persist(empregado);
 		entityManager.getTransaction().commit();
 		Assert.assertNotNull(empregado.getId());
@@ -34,7 +35,7 @@ public class EmpregadoTest {
 	@Test
 	public void testMerge(){
 		entityManager.getTransaction().begin();		
-		Empregado empregado = criarEmpregado();
+		Empregado empregado = Utils.criarEmpregado();
 		entityManager.persist(empregado);
 		entityManager.getTransaction().commit();
 				
@@ -53,7 +54,7 @@ public class EmpregadoTest {
 	@Test
 	public void testRemove(){
 		entityManager.getTransaction().begin();		
-		Empregado empregado = criarEmpregado();
+		Empregado empregado = Utils.criarEmpregado();
 		entityManager.persist(empregado);
 		entityManager.remove(empregado);
 		entityManager.getTransaction().commit();
@@ -65,7 +66,7 @@ public class EmpregadoTest {
 	public void testDetach(){
 		entityManager.getTransaction().begin();		
 		
-		Empregado empregado = criarEmpregado();
+		Empregado empregado = Utils.criarEmpregado();
 		entityManager.persist(empregado);
 		
 		String nomeAntesDaMudanca = empregado.getNome();
@@ -84,8 +85,8 @@ public class EmpregadoTest {
 	public void testAssociarDepartamento() {
 		entityManager.getTransaction().begin();
 		
-		Empregado emp = criarEmpregado();		
-		Departamento dep = criarDepartamento();
+		Empregado emp = Utils.criarEmpregado();		
+		Departamento dep = Utils.criarDepartamento();
 		entityManager.persist(dep);
 		
 		emp.setDepartamento(dep);		
@@ -102,7 +103,7 @@ public class EmpregadoTest {
 	public void testAssociarProjetoOwningSide(){
 		entityManager.getTransaction().begin();
 		
-		Empregado emp = criarEmpregado();		
+		Empregado emp = Utils.criarEmpregado();		
 		
 		Projeto proj = new Projeto();
 		proj.setNome("MARS");
@@ -123,7 +124,7 @@ public class EmpregadoTest {
 	public void testAssociarProjetoMappedBySide(){
 		entityManager.getTransaction().begin();
 
-		Empregado emp = criarEmpregado();
+		Empregado emp = Utils.criarEmpregado();
 		entityManager.persist(emp);
 		
 		Projeto proj = new Projeto();
@@ -143,7 +144,7 @@ public class EmpregadoTest {
 	public void testPersistAddress(){
 		entityManager.getTransaction().begin();
 
-		Empregado emp = criarEmpregado();
+		Empregado emp = Utils.criarEmpregado();
 		Endereco end = new Endereco();
 		end.setRua("Av Pontes");
 		end.setCidade("Fortaleza");
@@ -160,7 +161,7 @@ public class EmpregadoTest {
 	
 	@Test
 	public void testAdicionarDoc(){
-		Empregado emp = criarEmpregado();		
+		Empregado emp = Utils.criarEmpregado();		
 		
 		Documento doc = new Documento();
 		doc.setNumero(898989898L);
@@ -180,7 +181,7 @@ public class EmpregadoTest {
 	
 	@Test
 	public void testRemoveDoc(){
-		Empregado emp = criarEmpregado();		
+		Empregado emp = Utils.criarEmpregado();		
 		Documento doc = new Documento();
 		doc.setNumero(898989898L);		
 		emp.setDocumento(doc);
@@ -196,21 +197,67 @@ public class EmpregadoTest {
 		Assert.assertNull( entityManager.find(Documento.class, emp.getDocumento().getId()));		
 		
 	}
+	
+	@Test
+	public void testFindByNome(){
+		entityManager.getTransaction().begin();
+		Empregado emp = Utils.criarEmpregado();
+		entityManager.persist(emp);
+		entityManager.getTransaction().commit();
+		entityManager.clear();
 
-
-	private Departamento criarDepartamento() {
-		Departamento dep1 = new Departamento();
-		int random = (int)(Math.random()*100000);
-		dep1.setNome("Departamento " + random);
-		dep1.setOrcamento( new BigDecimal (random * (Math.random()*10)));
-		return dep1;
+		List<Empregado> empregados = entityManager.createNamedQuery("Empregado.findByNome", Empregado.class)
+				.setParameter("nome", emp.getNome())
+				.getResultList();
+		
+		Assert.assertEquals(1, empregados.size());
+		
 	}
 	
-	private Empregado criarEmpregado() {
-		Empregado employee = new Empregado();		
-		employee.setNome("Empregado " + ((int)(Math.random()*1000)));	
-		return employee;
+	@Test
+	public void testEmpregadosMaiorDep(){
+		
+		entityManager.getTransaction().begin();
+		
+		Utils.gerarDepartamentosComEmpregados(entityManager);
+		
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+		
+		List<Object[]> resultList = entityManager.createNamedQuery("Departamento.quantosEmpregadosMaiorOrcamento", Object[].class)				
+				.getResultList();
+		
+		Assert.assertTrue(!resultList.isEmpty());
+		System.out.println(Arrays.asList(resultList.get(0)));
+		
 	}
+
+
+	@Test
+	public void testNativeByDocumento(){
+		
+		entityManager.getTransaction().begin();
+		Empregado empregado = Utils.criarEmpregado();
+		Documento doc = new Documento();
+		doc.setNumero((long)(Math.random()*10000));
+		empregado.setDocumento(doc);
+		entityManager.persist(empregado);
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+		List<Empregado> list = entityManager.createNamedQuery("Empregado.byDocumento", Empregado.class)
+					.setParameter(1, doc.getNumero())
+					.getResultList();
+		Assert.assertTrue(list.size()>=1);
+	}
+	
+	@Test
+	public void testDepartamentoComEmpregadosSemProjeto(){
+		List<Departamento> list = entityManager.createNamedQuery("Departamento.semEmpregadosEmProjetos", Departamento.class).getResultList();
+		Assert.assertTrue(list.size()>0);
+	}
+
+
+	
 	
 	
 	
