@@ -16,7 +16,7 @@ public class TarefaRecorrente extends Tarefa {
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name="NM_PERIODICIDADE")
-	Peridicidade periodicidade;
+	private Peridicidade periodicidade;
 
 	public Peridicidade getPeriodicidade() {
 		return periodicidade;
