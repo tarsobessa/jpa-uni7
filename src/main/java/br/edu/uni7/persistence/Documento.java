@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 @Entity
 @Table(name="TBL_DOCUMENTOS")
@@ -18,6 +19,10 @@ public class Documento {
 	
 	@Column(name="NU_NUMERO")
 	private Long numero;
+	
+	@Version
+	@Column(name="NU_VERSAO")
+	private Long versao;
 
 	@Override
 	public int hashCode() {
@@ -58,6 +63,14 @@ public class Documento {
 
 	public void setNumero(Long numero) {
 		this.numero = numero;
+	}
+
+	public Long getVersao() {
+		return versao;
+	}
+
+	public void setVersao(Long versao) {
+		this.versao = versao;
 	}
 	
 	

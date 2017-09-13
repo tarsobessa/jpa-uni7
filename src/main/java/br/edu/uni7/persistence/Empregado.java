@@ -27,6 +27,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 @NamedQueries({
 	@NamedQuery(name="Empregado.findByCidade", 
@@ -83,6 +84,10 @@ public class Empregado {
 	joinColumns = @JoinColumn(name = "FK_EMP") , 
 	inverseJoinColumns = @JoinColumn(name = "FK_PROJ") )
 	private List<Projeto> projetos = new ArrayList<Projeto>();
+	
+	@Version
+	@Column(name="NU_VERSAO")
+	private Long versao;
 	
 	public Endereco getEndereco() {
 		return endereco;
@@ -180,5 +185,13 @@ public class Empregado {
 	public void setSalario(BigDecimal salario) {
 		this.salario = salario;
 	}
+
+	public Long getVersao() {
+		return versao;
+	}
+
+	public void setVersao(Long versao) {
+		this.versao = versao;
+	}	
 
 }

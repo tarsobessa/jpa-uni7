@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.LockModeType;
 import javax.persistence.Persistence;
 
 import org.junit.Assert;
@@ -297,11 +298,74 @@ public class EmpregadoTest {
 			System.out.println(String.format("Tarefa %d -> %s", i+1, tarefa.getNome()));
 		}
 		
-		Assert.assertTrue(projetoDb.getTarefas().size()==2);		
-		
+		Assert.assertTrue(projetoDb.getTarefas().size()==2);			
 	}
 	
+	@Test
+	public void testCriarEmpregadoVersao(){
+		Empregado emp = Utils.criarEmpregado();
+		entityManager.getTransaction().begin();
+		entityManager.persist(emp);
+		entityManager.getTransaction().commit();
+		entityManager.clear();		
+		Assert.assertNotNull(emp.getVersao());
+	}
 	
+	@Test(expected=javax.persistence.OptimisticLockException.class)
+	public void testModificarEmpregadoComVersaoAntiga(){
+		Empregado empVersao0 = Utils.criarEmpregado();
+		entityManager.getTransaction().begin();
+		entityManager.persist(empVersao0);
+		entityManager.getTransaction().commit();
+		entityManager.clear();		
+		
+		//a primeira alteracao deve ser ok
+		Empregado empregado = entityManager.find(Empregado.class, empVersao0.getId());
+		empregado.setNome("Novo Nome");
+		entityManager.getTransaction().begin();
+		entityManager.merge(empregado);
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+		
+		//essa deve gerar um erro
+		entityManager.getTransaction().begin();		
+		empVersao0.setNome("Novo Nome 2");
+		entityManager.merge(empVersao0);
+		entityManager.getTransaction().commit();
+	}
+	
+	@Test
+	public void testModificarDocumentoDoEmpregado(){
+		//preparando o dado pro teste
+		Empregado emp = Utils.criarEmpregado();		
+		
+		Documento doc = new Documento();
+		doc.setNumero(898989898L);
+		
+		emp.setDocumento(doc);
+		
+		entityManager.getTransaction().begin();
+		entityManager.persist(emp);
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+
+		//executanto o teste		
+		entityManager.getTransaction().begin();
+		
+		Empregado empregado = entityManager.find(Empregado.class, emp.getId());
+		entityManager.lock(empregado, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+		empregado.getDocumento().setNumero(123456L);
+		
+		Long versaoAntiga = empregado.getVersao();
+		
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+		
+		Empregado empregadoNovaVersao = entityManager.find(Empregado.class, empregado.getId());
+		
+		Assert.assertNotEquals(versaoAntiga, empregadoNovaVersao.getVersao());
+				
+	}
 	
 }
 
