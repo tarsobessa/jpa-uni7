@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class EmpregadoTest {
+public class ExerciciosTest {
 	
 	private static EntityManager entityManager;
 
