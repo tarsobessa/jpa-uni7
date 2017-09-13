@@ -38,7 +38,7 @@ import javax.persistence.TemporalType;
 
 @NamedNativeQueries({
 	@NamedNativeQuery(name="Empregado.byDocumento", 
-					query="select e.* from tbl_empregados e inner join tbl_documentos d on e.FK_DOC_ID = d.PK_DOC_ID "
+					query="select e.* from tbl_empregados e inner join tbl_documentos d on e.FK_DOC = d.PK_DOC "
 							+ "WHERE d.NU_NUMERO = ?1", 
 					resultClass=Empregado.class)
 })
@@ -75,7 +75,7 @@ public class Empregado {
 
 	@OneToOne(cascade = { CascadeType.REMOVE, CascadeType.PERSIST },
 			fetch = FetchType.LAZY)
-	@JoinColumn(name = "FK_DOC_ID")
+	@JoinColumn(name = "FK_DOC")
 	private Documento documento;
 
 	@ManyToMany
