@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.Persistence;
 
 import org.junit.Assert;
@@ -329,9 +330,14 @@ public class ExerciciosTest {
 		
 		//essa deve gerar um erro
 		entityManager.getTransaction().begin();		
-		empVersao0.setNome("Novo Nome 2");
-		entityManager.merge(empVersao0);
-		entityManager.getTransaction().commit();
+		try {
+			empVersao0.setNome("Novo Nome 2");
+			entityManager.merge(empVersao0);
+			entityManager.getTransaction().commit();
+		} catch (OptimisticLockException e) { 
+			entityManager.getTransaction().rollback();
+			throw e;
+		}
 	}
 	
 	@Test
