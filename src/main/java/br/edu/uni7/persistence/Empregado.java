@@ -24,10 +24,13 @@ import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+
 
 @NamedQueries({
 	@NamedQuery(name="Empregado.findByCidade", 
@@ -88,6 +91,13 @@ public class Empregado {
 	@Version
 	@Column(name="NU_VERSAO")
 	private Long versao;
+	
+	@PrePersist @PreUpdate
+	public void validarCampos() {
+		if(nome == null){
+			throw new IllegalStateException("O atributo nome é obrigatório");
+		}
+	}
 	
 	public Endereco getEndereco() {
 		return endereco;

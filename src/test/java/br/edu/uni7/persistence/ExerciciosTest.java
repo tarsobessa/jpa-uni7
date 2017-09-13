@@ -373,5 +373,18 @@ public class ExerciciosTest {
 				
 	}
 	
+	@Test(expected=IllegalStateException.class)
+	public void testEmpregadoSemNome(){
+		Empregado emp = new Empregado();
+		entityManager.getTransaction().begin();
+		try {
+			entityManager.persist(emp);
+			entityManager.getTransaction().commit();
+		} catch (Exception e){
+			entityManager.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
 }
 
