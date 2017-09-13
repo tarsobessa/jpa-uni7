@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm
+                                     http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd" version="2.1">
+
+    <!-- JPA Named Queries -->
+    <named-query name="Departamento.quantosEmpregadosMaiorOrcamento">
+        <query>
+        	   SELECT COUNT(e), d.id
+               FROM Departamento d JOIN d.empregados e 
+               WHERE d.orcamento = (SELECT MAX(d.orcamento) FROM Departamento d)
+               GROUP BY d.id
+        </query>
+         <!-- Solução do Yuri 
+         <query>
+          	SELECT COUNT(e), d.id FROM Empregado e JOIN e.departamento d GROUP BY d.id ORDER BY MAX(d.orcamento) DESC
+         </query>
+          -->    
+    </named-query>
+    <named-query name="Departamento.semEmpregadosEmProjetos">
+        <query>SELECT d FROM Departamento d JOIN d.empregados e WHERE e.projetos IS EMPTY </query>        
+    </named-query>        
+</entity-mappings>

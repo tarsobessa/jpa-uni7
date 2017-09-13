@@ -19,10 +19,29 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+@NamedQueries({
+	@NamedQuery(name="Empregado.findByCidade", 
+			query="select e from Empregado e where e.endereco.cidade = :cidade"),
+	
+	@NamedQuery(name="Empregado.findByNome", 
+	query="select e from Empregado e where e.nome = :nome")	
+})
+
+@NamedNativeQueries({
+	@NamedNativeQuery(name="Empregado.byDocumento", 
+					query="select e.* from tbl_empregados e inner join tbl_documentos d on e.FK_DOC_ID = d.PK_DOC_ID "
+							+ "WHERE d.NU_NUMERO = ?1", 
+					resultClass=Empregado.class)
+})
 
 @Entity
 @Table(name = "TBL_EMPREGADOS")
@@ -54,19 +73,24 @@ public class Empregado {
 			@AttributeOverride(name = "cep", column = @Column(name = "NU_COD_POSTAL"))})
 	private Endereco endereco;
 
-	public Endereco getEndereco() {
-		return endereco;
-	}
-
-	public void setEndereco(Endereco endereco) {
-		this.endereco = endereco;
-	}
-
 	@OneToOne(cascade = { CascadeType.REMOVE, CascadeType.PERSIST },
 			fetch = FetchType.LAZY)
 	@JoinColumn(name = "FK_DOC_ID")
 	private Documento documento;
 
+	@ManyToMany
+	@JoinTable(name = "TBL_EMP_PRJS", 
+	joinColumns = @JoinColumn(name = "FK_EMP") , 
+	inverseJoinColumns = @JoinColumn(name = "FK_PROJ") )
+	private List<Projeto> projetos = new ArrayList<Projeto>();
+	
+	public Endereco getEndereco() {
+		return endereco;
+	}
+	
+	public void setEndereco(Endereco endereco) {
+		this.endereco = endereco;
+	}
 	public Documento getDocumento() {
 		return documento;
 	}
@@ -75,11 +99,6 @@ public class Empregado {
 		this.documento = documento;
 	}
 
-	@ManyToMany
-	@JoinTable(name = "TBL_EMP_PRJS", 
-	joinColumns = @JoinColumn(name = "FK_EMP") , 
-	inverseJoinColumns = @JoinColumn(name = "FK_PROJ") )
-	private List<Projeto> projetos = new ArrayList<Projeto>();
 
 	public List<Projeto> getProjetos() {
 		return projetos;
