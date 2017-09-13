@@ -6,10 +6,17 @@
 
     <!-- JPA Named Queries -->
     <named-query name="Departamento.quantosEmpregadosMaiorOrcamento">
-        <query>SELECT SIZE(e), d.id
+        <query>
+        	   SELECT COUNT(e), d.id
                FROM Departamento d JOIN d.empregados e 
                WHERE d.orcamento = (SELECT MAX(d.orcamento) FROM Departamento d)
-               GROUP BY d.id</query>        
+               GROUP BY d.id
+        </query>
+         <!-- Solução do Yuri 
+         <query>
+          	SELECT COUNT(e), d.id FROM Empregado e JOIN e.departamento d GROUP BY d.id ORDER BY MAX(d.orcamento) DESC
+         </query>
+          -->    
     </named-query>
     <named-query name="Departamento.semEmpregadosEmProjetos">
         <query>SELECT d FROM Departamento d JOIN d.empregados e WHERE e.projetos IS EMPTY </query>        
