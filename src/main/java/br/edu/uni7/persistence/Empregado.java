@@ -27,6 +27,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 @NamedQueries({
 	@NamedQuery(name="Empregado.findByCidade", 
@@ -38,7 +39,7 @@ import javax.persistence.TemporalType;
 
 @NamedNativeQueries({
 	@NamedNativeQuery(name="Empregado.byDocumento", 
-					query="select e.* from tbl_empregados e inner join tbl_documentos d on e.FK_DOC_ID = d.PK_DOC_ID "
+					query="select e.* from tbl_empregados e inner join tbl_documentos d on e.FK_DOC = d.PK_DOC "
 							+ "WHERE d.NU_NUMERO = ?1", 
 					resultClass=Empregado.class)
 })
@@ -49,7 +50,7 @@ public class Empregado {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "PK_EMP_ID")
+	@Column(name = "PK_EMP")
 	private Long id;
 
 	@Column(name = "NM_NAME")
@@ -75,7 +76,7 @@ public class Empregado {
 
 	@OneToOne(cascade = { CascadeType.REMOVE, CascadeType.PERSIST },
 			fetch = FetchType.LAZY)
-	@JoinColumn(name = "FK_DOC_ID")
+	@JoinColumn(name = "FK_DOC")
 	private Documento documento;
 
 	@ManyToMany
@@ -83,6 +84,10 @@ public class Empregado {
 	joinColumns = @JoinColumn(name = "FK_EMP") , 
 	inverseJoinColumns = @JoinColumn(name = "FK_PROJ") )
 	private List<Projeto> projetos = new ArrayList<Projeto>();
+	
+	@Version
+	@Column(name="NU_VERSAO")
+	private Long versao;
 	
 	public Endereco getEndereco() {
 		return endereco;
@@ -180,5 +185,13 @@ public class Empregado {
 	public void setSalario(BigDecimal salario) {
 		this.salario = salario;
 	}
+
+	public Long getVersao() {
+		return versao;
+	}
+
+	public void setVersao(Long versao) {
+		this.versao = versao;
+	}	
 
 }

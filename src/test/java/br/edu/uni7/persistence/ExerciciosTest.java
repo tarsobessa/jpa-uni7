@@ -1,10 +1,13 @@
 package br.edu.uni7.persistence;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.Persistence;
 
 import org.junit.Assert;
@@ -256,10 +259,119 @@ public class ExerciciosTest {
 		Assert.assertTrue(list.size()>0);
 	}
 
+	@Test
+	public void testCriarTarefas(){
+		entityManager.getTransaction().begin();
+		
+		Empregado emp = Utils.criarEmpregado();		
+		
+		Projeto proj = new Projeto();
+		proj.setNome("Cassiny");
+		entityManager.persist(proj);
+		
+		emp.getProjetos().add(proj);
+		entityManager.persist(emp);
+		
+		TarefaUnica tarefaUnica = new TarefaUnica();
+		tarefaUnica.setNome("Importar Dados do DB");
+		tarefaUnica.setDataCriacao(new Date());
+		tarefaUnica.setProjeto(proj);
+		tarefaUnica.setEmpregado(emp);
+		
+		entityManager.persist(tarefaUnica);
+		
+		TarefaRecorrente tarefaRecorrente = new TarefaRecorrente();
+		tarefaRecorrente.setNome("Verificar E-mails");
+		tarefaRecorrente.setDataCriacao(new Date());
+		tarefaRecorrente.setProjeto(proj);
+		tarefaRecorrente.setEmpregado(emp);
+		tarefaRecorrente.setPeriodicidade(Periodicidade.DIARIO);
+		
+		entityManager.persist(tarefaRecorrente);
+		
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+		
+		Projeto projetoDb = entityManager.find(Projeto.class, proj.getId());
+		List<Tarefa> tarefas = projetoDb.getTarefas();
+		for (int i = 0; i < tarefas.size(); i++) {
+			Tarefa tarefa = tarefas.get(i);			
+			System.out.println(String.format("Tarefa %d -> %s", i+1, tarefa.getNome()));
+		}
+		
+		Assert.assertTrue(projetoDb.getTarefas().size()==2);			
+	}
+	
+	@Test
+	public void testCriarEmpregadoVersao(){
+		Empregado emp = Utils.criarEmpregado();
+		entityManager.getTransaction().begin();
+		entityManager.persist(emp);
+		entityManager.getTransaction().commit();
+		entityManager.clear();		
+		Assert.assertNotNull(emp.getVersao());
+	}
+	
+	@Test(expected=javax.persistence.OptimisticLockException.class)
+	public void testModificarEmpregadoComVersaoAntiga(){
+		Empregado empVersao0 = Utils.criarEmpregado();
+		entityManager.getTransaction().begin();
+		entityManager.persist(empVersao0);
+		entityManager.getTransaction().commit();
+		entityManager.clear();		
+		
+		//a primeira alteracao deve ser ok
+		Empregado empregado = entityManager.find(Empregado.class, empVersao0.getId());
+		empregado.setNome("Novo Nome");
+		entityManager.getTransaction().begin();
+		entityManager.merge(empregado);
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+		
+		//essa deve gerar um erro
+		entityManager.getTransaction().begin();		
+		try {
+			empVersao0.setNome("Novo Nome 2");
+			entityManager.merge(empVersao0);
+			entityManager.getTransaction().commit();
+		} catch (OptimisticLockException e) { 
+			entityManager.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
+	@Test
+	public void testModificarDocumentoDoEmpregado(){
+		//preparando o dado pro teste
+		Empregado emp = Utils.criarEmpregado();		
+		
+		Documento doc = new Documento();
+		doc.setNumero(898989898L);
+		
+		emp.setDocumento(doc);
+		
+		entityManager.getTransaction().begin();
+		entityManager.persist(emp);
+		entityManager.getTransaction().commit();
+		entityManager.clear();
 
-	
-	
-	
+		//executanto o teste		
+		entityManager.getTransaction().begin();
+		
+		Empregado empregado = entityManager.find(Empregado.class, emp.getId());
+		entityManager.lock(empregado, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+		empregado.getDocumento().setNumero(123456L);
+		
+		Long versaoAntiga = empregado.getVersao();
+		
+		entityManager.getTransaction().commit();
+		entityManager.clear();
+		
+		Empregado empregadoNovaVersao = entityManager.find(Empregado.class, empregado.getId());
+		
+		Assert.assertNotEquals(versaoAntiga, empregadoNovaVersao.getVersao());
+				
+	}
 	
 }
 
