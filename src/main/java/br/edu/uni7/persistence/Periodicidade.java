@@ -1,5 +1,5 @@
 package br.edu.uni7.persistence;
 
-public enum Peridicidade {
+public enum Periodicidade {
 	DIARIO, MENSAL, ANUAL
 }

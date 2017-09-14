@@ -283,7 +283,7 @@ public class ExerciciosTest {
 		tarefaRecorrente.setDataCriacao(new Date());
 		tarefaRecorrente.setProjeto(proj);
 		tarefaRecorrente.setEmpregado(emp);
-		tarefaRecorrente.setPeriodicidade(Peridicidade.DIARIO);
+		tarefaRecorrente.setPeriodicidade(Periodicidade.DIARIO);
 		
 		entityManager.persist(tarefaRecorrente);
 		
