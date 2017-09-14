@@ -16,13 +16,13 @@ public class TarefaRecorrente extends Tarefa {
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name="NM_PERIODICIDADE")
-	private Peridicidade periodicidade;
+	private Periodicidade periodicidade;
 
-	public Peridicidade getPeriodicidade() {
+	public Periodicidade getPeriodicidade() {
 		return periodicidade;
 	}
 
-	public void setPeriodicidade(Peridicidade periodicidade) {
+	public void setPeriodicidade(Periodicidade periodicidade) {
 		this.periodicidade = periodicidade;
 	}
 	
