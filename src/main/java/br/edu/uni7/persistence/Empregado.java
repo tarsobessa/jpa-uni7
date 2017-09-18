@@ -30,6 +30,12 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+import javax.validation.Valid;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
 
 
 @NamedQueries({
@@ -57,6 +63,8 @@ public class Empregado {
 	private Long id;
 
 	@Column(name = "NM_NAME")
+	@Size(max=40, min=3)
+	@NotNull
 	private String nome;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -64,12 +72,14 @@ public class Empregado {
 	private Departamento departamento;
 	
 	@Column(name="NM_EMAIL")
+	@Email
 	private String email;
 	
 	@Temporal(TemporalType.DATE)
 	private Date dataNascimento;
 	
-	@Column(name="NU_SALARIO")
+	@Column(name="NU_SALARIO")	
+	@DecimalMin("900.00")
 	private BigDecimal salario;
 
 	@Embedded
@@ -80,6 +90,7 @@ public class Empregado {
 	@OneToOne(cascade = { CascadeType.REMOVE, CascadeType.PERSIST },
 			fetch = FetchType.LAZY)
 	@JoinColumn(name = "FK_DOC")
+	@Valid
 	private Documento documento;
 
 	@ManyToMany

@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="TBL_DOCUMENTOS")
@@ -18,6 +19,7 @@ public class Documento {
 	private Long id;
 	
 	@Column(name="NU_NUMERO")
+	@NotNull
 	private Long numero;
 	
 	@Version

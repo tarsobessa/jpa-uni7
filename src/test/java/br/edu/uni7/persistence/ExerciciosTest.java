@@ -1,5 +1,6 @@
 package br.edu.uni7.persistence;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +10,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.Persistence;
+import javax.validation.ValidationException;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -380,8 +382,40 @@ public class ExerciciosTest {
 		try {
 			entityManager.persist(emp);
 			entityManager.getTransaction().commit();
+		} catch (Exception e){			
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	@Test(expected=ValidationException.class)
+	public void testEmpregadoSemNomeBeanValidation(){
+		Empregado emp = new Empregado();
+		emp.setNome("An");
+		entityManager.getTransaction().begin();
+		try {
+			entityManager.persist(emp);
+			entityManager.getTransaction().commit();
 		} catch (Exception e){
 			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	@Test(expected=ValidationException.class)
+	public void testEmpregadoSalarioAbaixo900(){
+		Empregado emp = new Empregado();
+		emp.setNome("Ana");
+		emp.setSalario(new BigDecimal(899));
+		entityManager.getTransaction().begin();
+		try {
+			entityManager.persist(emp);
+			entityManager.getTransaction().commit();
+		} catch (Exception e){
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
 			throw e;
 		}
 	}
