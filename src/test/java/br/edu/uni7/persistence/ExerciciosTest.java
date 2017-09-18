@@ -420,5 +420,21 @@ public class ExerciciosTest {
 		}
 	}
 	
+	@Test(expected=ValidationException.class)
+	public void testEmpregadoDocumentoSemNumero(){
+		Empregado emp = new Empregado();
+		emp.setNome("Ana");
+		emp.setSalario(new BigDecimal(901));
+		emp.setDocumento(new Documento());
+		entityManager.getTransaction().begin();
+		try {
+			entityManager.persist(emp);
+			entityManager.getTransaction().commit();
+		} catch (Exception e){
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }
 
