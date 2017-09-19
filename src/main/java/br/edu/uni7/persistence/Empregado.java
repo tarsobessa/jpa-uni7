@@ -24,10 +24,19 @@ import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+import javax.validation.Valid;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
+
 
 @NamedQueries({
 	@NamedQuery(name="Empregado.findByCidade", 
@@ -54,6 +63,8 @@ public class Empregado {
 	private Long id;
 
 	@Column(name = "NM_NAME")
+	@Size(max=40, min=3)
+	@NotNull
 	private String nome;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -61,12 +72,14 @@ public class Empregado {
 	private Departamento departamento;
 	
 	@Column(name="NM_EMAIL")
+	@Email
 	private String email;
 	
 	@Temporal(TemporalType.DATE)
 	private Date dataNascimento;
 	
-	@Column(name="NU_SALARIO")
+	@Column(name="NU_SALARIO")	
+	@DecimalMin("900.00")
 	private BigDecimal salario;
 
 	@Embedded
@@ -77,6 +90,7 @@ public class Empregado {
 	@OneToOne(cascade = { CascadeType.REMOVE, CascadeType.PERSIST },
 			fetch = FetchType.LAZY)
 	@JoinColumn(name = "FK_DOC")
+	@Valid
 	private Documento documento;
 
 	@ManyToMany
@@ -88,6 +102,13 @@ public class Empregado {
 	@Version
 	@Column(name="NU_VERSAO")
 	private Long versao;
+	
+	@PrePersist @PreUpdate
+	public void validarCampos() {
+		if(nome == null){
+			throw new IllegalStateException("O atributo nome é obrigatório");
+		}
+	}
 	
 	public Endereco getEndereco() {
 		return endereco;
