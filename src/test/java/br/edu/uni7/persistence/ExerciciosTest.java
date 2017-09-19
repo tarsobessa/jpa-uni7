@@ -5,12 +5,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.LockModeType;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.Persistence;
 import javax.validation.ValidationException;
+import javax.validation.Validator;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
